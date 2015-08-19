@@ -1,0 +1,16 @@
+{
+  "name": "eyetv-iptv-server",
+  "version": "1.0.0",
+  "description": "EyeTV to IPTV service",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "eyetv",
+    "iptv",
+    "kodi"
+  ],
+  "author": "Simon Nilsson",
+  "license": "ISC"
+}
