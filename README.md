@@ -39,3 +39,8 @@ Will embed Node.JS and VLC binaries into one executable.
 ```
 npm run build
 ```
+## Run on boot
+```
+cp build/eyetv-iptv-server /usr/local/bin/
+cp eyetv-iptv-server.plist ~/Library/LaunchAgents
+```
