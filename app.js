@@ -341,43 +341,108 @@ function startServer(vlc_path) {
         });
       }
     } else if(url_components.pathname == '/playlist.m3u8') {
-      response.write('#EXTM3U');
-      var eyetv_request = http.request({
-        hostname: 'localhost',
-        path: 'live/channels',
-        method: 'GET',
-        port: 2170
-      }, function (eyetv_response) {
-        var jsonstr = '';
-        var gunzip = zlib.Gunzip();
-        gunzip.on('data',function(data){
-          jsonstr += data
-        });
-        gunzip.on('finish',function(){
-          var channels = JSON.parse(jsonstr);
-          console.log(channels);
-          channels.channelList.forEach(function(channel) {
-            response.write('\n\n');
-            response.write('#EXTINF:-1, ' + channel.name + '\n');
-            response.write('http://' + request.headers.host + '/live?serviceID=' + channel.serviceID);
-          });
-          response.end();
-        });
-        eyetv_response.on('data', function(chunk) {
-          console.log('data');
-          gunzip.write(chunk, 'binary');
-        });
-        eyetv_response.on('end', function() {
-          console.log('end');
-          gunzip.end();
-        });
-      });
+      async.series([
+        function(callback){ //Launch EyeTV and wait for it to open
+          exec('pgrep -o -x EyeTV', function (error, stdout, stderr) {
+            console.log('EyeTV:'+stdout);
+            var eyetv_pid = stdout;
+            if(eyetv_pid) {//If it's already running, continue
+              callback();
+            } else {
+              exec('osascript -e \'tell application "EyeTV" to launch with server mode\'', function (error, stdout, stderr) {
+                var eyeTVStarted = false;
+                var retries = 0;
+                async.whilst(
+                  function () { return !eyeTVStarted && retries < 10; },
+                  function (callback) {
+                    retries++;
+                    console.log('Waiting for EyeTV to launch');
+                    setTimeout(function(){
+                      var eyetv_request = http.request({
+                        hostname: EYETV_HOST,
+                        path: 'live/status',
+                        method: 'GET',
+                        port: EYETV_PORT
+                      }, function (eyetv_response) {
+                        var jsonstr = '';
+                        var gunzip = zlib.Gunzip();
+                        gunzip.on('data',function(data){
+                          jsonstr += data
+                        });
+                        gunzip.on('finish',function(){
+                          var obj = JSON.parse(jsonstr);
+                          console.log(obj);
+                          eyeTVStarted = obj.isUp;
+                          callback();
+                        });
+                        eyetv_response.on('data', function(chunk) {
+                          gunzip.write(chunk,'binary');
+                        });
+                        eyetv_response.on('end', function() {
+                          gunzip.end();
+                        });
+                      });
 
-      eyetv_request.on('error',function(){
-        console.log('Could not connect to EyeTV Service');
-      });
-      
-      eyetv_request.end('\n');
+                      eyetv_request.on('error',function(){
+                        console.log('Could not connect to EyeTV Service');
+                      });
+                      
+                      eyetv_request.end();
+                    },1000);
+                  },
+                  function (err) {
+                    //eyeTVStarted == true
+                    console.log('EyeTV is launched');
+                    callback();
+                  }
+                );
+              });
+            }
+          });
+        },
+        function(callback){
+          response.write('#EXTM3U');
+          var eyetv_request = http.request({
+            hostname: 'localhost',
+            path: 'live/channels',
+            method: 'GET',
+            port: 2170
+          }, function (eyetv_response) {
+            var jsonstr = '';
+            var gunzip = zlib.Gunzip();
+            gunzip.on('data',function(data){
+              jsonstr += data
+            });
+            gunzip.on('finish',function(){
+              var channels = JSON.parse(jsonstr);
+              console.log(channels);
+              channels.channelList.forEach(function(channel) {
+                response.write('\n\n');
+                response.write('#EXTINF:-1, ' + channel.name + '\n');
+                response.write('http://' + request.headers.host + '/live?serviceID=' + channel.serviceID);
+              });
+              response.end();
+            });
+            eyetv_response.on('data', function(chunk) {
+              console.log('data');
+              gunzip.write(chunk, 'binary');
+            });
+            eyetv_response.on('end', function() {
+              console.log('end');
+              gunzip.end();
+            });
+          });
+
+          eyetv_request.on('error',function(){
+            console.log('Could not connect to EyeTV Service');
+          });
+          
+          eyetv_request.end('\n');
+        }],
+        function(err, results){
+          eyetv_request.end('\n');
+        }
+      );
     } else {
       response.writeHead(400);
       response.end('/live/[serviceID] or /playlist.m3u8');
