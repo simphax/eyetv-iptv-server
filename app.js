@@ -7,14 +7,36 @@ var async = require('async');
 var spawn = require('child_process').spawn;
 var exec = require('child_process').exec;
 var url = require('url');
-
-var nexeres = require("nexeres");
 var stream = require('stream');
 
-var PORT = '9898';
-var VLC_PORT = '9897';
-var EYETV_HOST = 'localhost';
-var EYETV_PORT = '2170';
+var argv = require('minimist')(process.argv.slice(2));
+console.log('Arguments: ', argv);
+
+var PORT = argv['port'] || '9898';
+var VLC_PORT = argv['vlc-port'] || '9897';
+var TMP_DIR = argv['tmp-dir'] || process.env.TMPDIR;
+var VLC_PATH = argv['vlc-path'] || TMP_DIR + '/VLC.app/Contents/MacOS/VLC';
+var EYETV_HOST = argv['eyetv-host'] || 'localhost';
+var EYETV_PORT = argv['eyetv-port'] || '2170';
+
+if(!argv['vlc-path']) {
+  
+  var nexeres = require("nexeres");
+  //Get VLC.tar.gz from compiled package
+  var bufferStream = new stream.PassThrough();
+  bufferStream.end(nexeres.get("VLC.tar.gz"));
+
+  //Extract VLC.app to temp folder
+  console.log("Extracting VLC.app to " + TMP_DIR);
+  var extract = tar.Extract({ path: TMP_DIR });
+  extract.on('finish', function() {
+    //Start server when extraction is finished
+    startServer(VLC_PATH);
+  })
+  bufferStream.pipe(zlib.Gunzip()).pipe(extract);
+} else {
+  startServer(VLC_PATH);
+}
 
 function startServer(vlc_path) {
   var server = new http.Server();
@@ -67,10 +89,10 @@ function startServer(vlc_path) {
                               console.log('Waiting for EyeTV to launch');
                               setTimeout(function(){
                                 var eyetv_request = http.request({
-                                  hostname: 'localhost',
+                                  hostname: EYETV_HOST,
                                   path: 'live/status',
                                   method: 'GET',
-                                  port: 2170
+                                  port: EYETV_PORT
                                 }, function (eyetv_response) {
                                   var jsonstr = '';
                                   var gunzip = zlib.Gunzip();
@@ -229,7 +251,7 @@ function startServer(vlc_path) {
           function(callback){
             //Poll EyeTV to keep the tuner alive
             pollInterval = setInterval(function(){
-              http.get('http://localhost:2170/live/ready',function(res) {
+              http.get('http://' + EYETV_HOST + ':' + EYETV_PORT + '/live/ready',function(res) {
                 console.log('Polled EyeTV');
               }).on('error', function(e) {
                 console.log('Error polling EyeTV');
@@ -263,10 +285,10 @@ function startServer(vlc_path) {
               //console.log(str);
             });
 
-            vlc_proc.stdout.on('data', function (data) {
-              var str = ''+data;
-              console.log(str);
-            });
+//          vlc_proc.stdout.on('data', function (data) {
+//            var str = ''+data;
+//            console.log(str);
+//          });
 
             vlc_proc.on('close', function (code) {
               console.log('VLC exited with code ' + code);
@@ -343,7 +365,7 @@ function startServer(vlc_path) {
         });
         eyetv_response.on('data', function(chunk) {
           console.log('data');
-          gunzip.write(chunk,'binary');
+          gunzip.write(chunk, 'binary');
         });
         eyetv_response.on('end', function() {
           console.log('end');
@@ -357,26 +379,13 @@ function startServer(vlc_path) {
       
       eyetv_request.end('\n');
     } else {
-      response.end('Not implemented');
+      response.writeHead(400);
+      response.end('/live/[serviceID] or /playlist.m3u8');
     }
   });
   server.listen(PORT);
 
-  console.log("Server started on port "+PORT);
+  console.log("Server started on port " + PORT);
 }
 
-//If build
-//Get VLC.tar.gz from compiled package
-var vlc_path = process.env.TMPDIR + '/VLC.app/Contents/MacOS/VLC';
 
-var bufferStream = new stream.PassThrough();
-bufferStream.end(nexeres.get("VLC.tar.gz"));
-
-//Extract VLC.app to temp folder
-console.log("Extracting VLC.app to " + process.env.TMPDIR);
-var extract = tar.Extract({ path: process.env.TMPDIR });
-extract.on('finish', function() {
-  //Start server when extraction is finished
-  startServer(vlc_path);
-})
-bufferStream.pipe(zlib.Gunzip()).pipe(extract);
