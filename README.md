@@ -22,9 +22,8 @@ Needs to be run on same machine as the EyeTV application, and it needs to be act
 ```
 
 ## Running
-Requires VLC to be installed in /Applications
 ```
-npm start
+node app.js --vlc-path /Applications/VLC.app/Contents/MacOS/VLC
 ```
 
 ## Compiling portable executable
