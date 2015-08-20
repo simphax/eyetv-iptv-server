@@ -4,7 +4,7 @@
   "description": "EyeTV to IPTV service",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node app.js --vlc-path /Applications/VLC.app/Contents/MacOS/VLC",
     "build": "node build.js"
   },
   "keywords": [
