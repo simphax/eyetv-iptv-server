@@ -43,4 +43,5 @@ npm run build
 ```
 cp build/eyetv-iptv-server /usr/local/bin/
 cp eyetv-iptv-server.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/eyetv-iptv-server.plist
 ```
