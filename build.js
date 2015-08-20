@@ -6,7 +6,7 @@ nexe.compile({
     nodeVersion: '0.12.7',
     nodeTempDir: 'build/tmp',
     python: '/usr/bin/python',
-    resourceFiles: [  ],
+    resourceFiles: [ './VLC.tar.gz' ],
     flags: true,
     framework: "nodejs"
 }, function(err) {
