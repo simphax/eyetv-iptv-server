@@ -6,7 +6,9 @@ Provides an interface for an IPTV frontend to stream EyeTV channels, for example
 The service needs to be run on the same machine as the EyeTV application, and EyeTV have to be activated for iPhone access.
 
 ## Setup
-Run the service and set up the IPTV client to use **http://localhost:9898/playlist.m3u8** as the M3U playlist.
+Install the [EyeTV capture plugin](http://www.videolan.org/vlc/download-eyetv.html)
+Activate EyeTV's iPhone access.
+Run **eyetv-iptv-server** and set up the IPTV client to use **http://localhost:9898/playlist.m3u8** as the M3U playlist.
 
 ## Command-line arguments
 ```
