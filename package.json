@@ -4,7 +4,8 @@
   "description": "EyeTV to IPTV service",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "build": "node build.js"
   },
   "keywords": [
     "eyetv",
@@ -12,5 +13,12 @@
     "kodi"
   ],
   "author": "Simon Nilsson",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nexe": "~0.4.1"
+  },
+  "dependencies": {
+    "async": "^1.4.2",
+    "tar-fs": "^1.8.1"
+  }
 }
