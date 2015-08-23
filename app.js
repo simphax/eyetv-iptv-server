@@ -10,7 +10,7 @@ var url = require('url');
 var stream = require('stream');
 
 var argv = require('minimist')(process.argv.slice(2));
-console.log('EyeTV IPTV server v0.1')
+console.log('EyeTV IPTV server v1.0.0');
 console.log('Arguments: ', argv);
 
 var PORT = argv['port'] || '9898';
