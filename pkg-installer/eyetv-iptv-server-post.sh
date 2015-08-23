@@ -1,2 +1,2 @@
 #!/bin/bash
-launchctl load /Library/LaunchDaemons/eyetv-iptv-server.plist
+sudo -u $USER launchctl load /Library/LaunchAgents/eyetv-iptv-server.plist
