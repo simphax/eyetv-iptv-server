@@ -64,8 +64,7 @@ function startServer(vlc_path) {
                   var vlc_pid = stdout;
                   exec('kill '+vlc_pid, function (error, stdout, stderr) {
                   });
-                  exec('wait '+vlc_pid, function (error, stdout, stderr) {
-
+                  exec('while [ -e /proc/'+vlc_pid+' ]; do sleep 0.1; done', function (error, stdout, stderr) {
                     callback();
                   });
                 });
