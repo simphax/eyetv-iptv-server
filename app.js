@@ -10,12 +10,13 @@ var url = require('url');
 var stream = require('stream');
 
 var argv = require('minimist')(process.argv.slice(2));
+console.log('EyeTV IPTV server v0.1')
 console.log('Arguments: ', argv);
 
 var PORT = argv['port'] || '9898';
 var VLC_PORT = argv['vlc-port'] || '9897';
 var TMP_DIR = argv['tmp-dir'] || process.env.TMPDIR;
-var VLC_PATH = argv['vlc-path'] || TMP_DIR + '/VLC.app/Contents/MacOS/VLC';
+var VLC_PATH = argv['vlc-path'] || TMP_DIR + 'VLC.app/Contents/MacOS/VLC';
 var EYETV_HOST = argv['eyetv-host'] || 'localhost';
 var EYETV_PORT = argv['eyetv-port'] || '2170';
 
@@ -59,13 +60,12 @@ function startServer(vlc_path) {
           function(callback){
             async.parallel([
               function(callback){ //Kill VLC and wait for it to close
-                exec('pgrep -o -x VLC', function (error, stdout, stderr) {
+                exec('ps aux | grep '+VLC_PATH+' | grep -v grep | awk \'{print $2}\'', function (error, stdout, stderr) {
                   console.log('VLC:'+stdout);
                   var vlc_pid = stdout;
                   exec('kill '+vlc_pid, function (error, stdout, stderr) {
                   });
-                  exec('wait '+vlc_pid, function (error, stdout, stderr) {
-
+                  exec('while [ -e /proc/'+vlc_pid+' ]; do sleep 0.1; done', function (error, stdout, stderr) {
                     callback();
                   });
                 });
