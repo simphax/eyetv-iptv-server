@@ -79,7 +79,8 @@ function startServer(vlc_path) {
                       if(eyetv_pid) {//If it's already running, continue
                         callback();
                       } else {
-                        exec('osascript -e \'tell application "EyeTV" to launch with server mode\'', function (error, stdout, stderr) {
+                        //For some reason we have to run the launch applescript command two times. First time will give an error (-2741)
+                        exec('osascript -e \'tell application "EyeTV" to launch with server mode\'; osascript -e \'tell application "EyeTV" to launch with server mode\'', function (error, stdout, stderr) {
                           var eyeTVStarted = false;
                           var retries = 0;
                           async.whilst(
@@ -349,7 +350,8 @@ function startServer(vlc_path) {
             if(eyetv_pid) {//If it's already running, continue
               callback();
             } else {
-              exec('osascript -e \'tell application "EyeTV" to launch with server mode\'', function (error, stdout, stderr) {
+              //For some reason we have to run the launch applescript command two times. First time will give an error (-2741)
+              exec('osascript -e \'tell application "EyeTV" to launch with server mode\'; osascript -e \'tell application "EyeTV" to launch with server mode\'', function (error, stdout, stderr) {
                 var eyeTVStarted = false;
                 var retries = 0;
                 async.whilst(
