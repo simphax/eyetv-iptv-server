@@ -15,6 +15,7 @@ console.log('Arguments: ', argv);
 
 var PORT = argv['port'] || '9898';
 var VLC_PORT = argv['vlc-port'] || '9897';
+var VLC_DST = argv['vlc-dst'] || 'localhost';
 var TMP_DIR = argv['tmp-dir'] || process.env.TMPDIR;
 var VLC_PATH = argv['vlc-path'] || TMP_DIR + 'VLC.app/Contents/MacOS/VLC';
 var EYETV_HOST = argv['eyetv-host'] || 'localhost';
@@ -268,12 +269,12 @@ function startServer(vlc_path) {
               '-I dummy',
               'eyetv://',
               '--loop',
-              '--sout=#standard{access=http,mux=ts,dst=:' + VLC_PORT + '}'
+              '--sout=#standard{access=http,mux=ts,dst=' + VLC_DST + ':' + VLC_PORT + '}'
             ]);
 
             vlc_proc.stderr.on('data', function (data) {
               var str = ''+data;
-              if(str.indexOf('net: listening to * port ' + VLC_PORT) > -1){
+              if(str.indexOf('net: listening to ') > -1){
                 console.log('VLC streaming has started');
               }
               if(str.indexOf('Decoder wait done') > -1){
