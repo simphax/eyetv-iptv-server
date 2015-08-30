@@ -14,6 +14,7 @@ console.log('EyeTV IPTV server v1.0.1');
 console.log('Arguments: ', argv);
 
 var PORT = argv['port'] || '9898';
+var HOST = argv['host'] || undefined;
 var VLC_PORT = argv['vlc-port'] || '9897';
 var VLC_DST = argv['vlc-dst'] || 'localhost';
 var TMP_DIR = argv['tmp-dir'] || process.env.TMPDIR;
@@ -451,7 +452,7 @@ function startServer(vlc_path) {
       response.end('/live/[serviceID] or /playlist.m3u8');
     }
   });
-  server.listen(PORT);
+  server.listen(PORT,HOST);
 
   console.log("Server started on port " + PORT);
 }
