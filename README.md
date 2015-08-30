@@ -16,6 +16,10 @@ Run **eyetv-iptv-server** and set up the IPTV client to use **http://localhost:9
   Server port.
   Default: 9898
   
+--host=IP
+  Server host. Set this to localhost if the IPTV should only be accessible locally.
+  Default: 0.0.0.0
+  
 --vlc-port=PORT
   VLC video stream port (internal).
   Default: 9897
@@ -47,3 +51,10 @@ cp build/eyetv-iptv-server /usr/local/bin/
 cp eyetv-iptv-server.plist ~/Library/LaunchAgents/
 launchctl load ~/Library/LaunchAgents/eyetv-iptv-server.plist
 ```
+## Changelog
+### v1.0.1
+- Restricted internal video stream to localhost
+- Added --host argument
+
+### v1.0.0
+First release
