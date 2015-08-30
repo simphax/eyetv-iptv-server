@@ -10,7 +10,7 @@ var url = require('url');
 var stream = require('stream');
 
 var argv = require('minimist')(process.argv.slice(2));
-console.log('EyeTV IPTV server v1.0.0');
+console.log('EyeTV IPTV server v1.0.1');
 console.log('Arguments: ', argv);
 
 var PORT = argv['port'] || '9898';
@@ -60,7 +60,7 @@ function startServer(vlc_path) {
           function(callback){
             async.parallel([
               function(callback){ //Kill VLC and wait for it to close
-                exec('ps aux | grep '+VLC_PATH+' | grep -v grep | awk \'{print $2}\'', function (error, stdout, stderr) {
+                exec('ps aux | grep '+VLC_PATH+' | grep -v grep | grep -v vlc-path | awk \'{print $2}\'', function (error, stdout, stderr) {
                   console.log('VLC:'+stdout);
                   var vlc_pid = stdout;
                   exec('kill '+vlc_pid, function (error, stdout, stderr) {
