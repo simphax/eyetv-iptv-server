@@ -425,7 +425,7 @@ function startServer(vlc_path) {
                 response.write('#EXTINF:-1, ' + channel.name + '\n');
                 response.write('http://' + request.headers.host + '/live?serviceID=' + channel.serviceID);
               });
-              response.end();
+              response.end('\n');
             });
             eyetv_response.on('data', function(chunk) {
               console.log('data');
@@ -441,10 +441,10 @@ function startServer(vlc_path) {
             console.log('Could not connect to EyeTV Service');
           });
           
-          eyetv_request.end('\n');
+          eyetv_request.end();
         }],
         function(err, results){
-          eyetv_request.end('\n');
+          eyetv_request.end();
         }
       );
     } else {
