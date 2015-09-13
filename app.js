@@ -8,9 +8,10 @@ var spawn = require('child_process').spawn;
 var exec = require('child_process').exec;
 var url = require('url');
 var stream = require('stream');
+var onFinished = require('on-finished');
 
 var argv = require('minimist')(process.argv.slice(2));
-console.log('EyeTV IPTV server v1.0.1');
+console.log('EyeTV IPTV server v1.0.2');
 console.log('Arguments: ', argv);
 
 var PORT = argv['port'] || '9898';
@@ -318,15 +319,11 @@ function startServer(vlc_path) {
             response.writeHead(vlc_response.statusCode, vlc_response.headers);
           });
 
-          response.on('close',function(){
-            console.log('response.close');
+          onFinished(response, function (err) {
+            console.log('onFinished');
+            console.log('Stopping EyeTV polling');
             clearInterval(pollInterval);
-            vlc_proc.kill('SIGINT');
-          });
-
-          response.on('finish',function(){
-            console.log('response.finish');
-            clearInterval(pollInterval);
+            console.log('Killing VLC process');
             vlc_proc.kill('SIGINT');
           });
 
