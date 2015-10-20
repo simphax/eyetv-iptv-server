@@ -51,6 +51,23 @@ function startServer(vlc_path) {
     if(url_components.pathname == '/live' && url_components.query.serviceID) {
       
       var pollInterval,vlc_proc;
+
+      onFinished(response, function (err) {
+        console.log('onFinished');
+        console.log('Stopping EyeTV polling');
+        if(pollInterval) {
+          clearInterval(pollInterval);
+        } else {
+          console.log('Poll interval not started?');
+        }
+        if(vlc_proc) {
+          console.log('Killing VLC process');
+          vlc_proc.kill('SIGINT');
+        } else {
+          console.log('VLC not started?');
+        }
+      });
+
       var serviceID = url_components.query.serviceID;
 
       if(request.method == 'HEAD') {
@@ -317,14 +334,6 @@ function startServer(vlc_path) {
               response.end();
             });
             response.writeHead(vlc_response.statusCode, vlc_response.headers);
-          });
-
-          onFinished(response, function (err) {
-            console.log('onFinished');
-            console.log('Stopping EyeTV polling');
-            clearInterval(pollInterval);
-            console.log('Killing VLC process');
-            vlc_proc.kill('SIGINT');
           });
 
           vlc_request.on('error',function(){
